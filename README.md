@@ -14,8 +14,8 @@ Find all the bars (or another type of place, like cafe) in your area.
 - APIs used:
   - React Google Maps API
   - [Rapid API](https://rapidapi.com):
-    - [TrueWay Places API](https://rapidapi.com/trueway/api/trueway-places) => search for places in the map)
-    - [Yahoo Weather](https://rapidapi.com/apishub/api/yahoo-weather5) =>
+    - [TrueWay Places API](https://rapidapi.com/trueway/api/trueway-places) => search for places in the map
+    - [Yahoo Weather](https://rapidapi.com/apishub/api/yahoo-weather5) => get weather forecast for specific location
 
 # How to run the app:
 

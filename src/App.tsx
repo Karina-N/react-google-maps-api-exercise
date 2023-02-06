@@ -1,9 +1,9 @@
 import React from "react";
-import { GoogleMap, MarkerF, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, MarkerF, InfoWindow, useJsApiLoader, Marker } from "@react-google-maps/api";
 // (in React18 {Marker} does not work anymore - (class component), instead use {MarkerF} - functional component)
 import { useQuery } from "react-query";
 // Api Calls
-import { fetchNearbyPlaces } from "./api";
+import { fetchNearbyPlaces, fetchWeather } from "./api";
 
 // Map Settings
 import { containerStyle, center, options } from "./settings";
@@ -20,6 +20,11 @@ export type MarkerType = {
   website: string;
 };
 
+export type WeatherType = {
+  temp: number;
+  text: string;
+};
+
 const App: React.FC = () => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -31,6 +36,7 @@ const App: React.FC = () => {
   // const mapRef = React.useRef<google.maps.Map<Element> | null>(null);
 
   const [clickedPos, setClickedPos] = React.useState<google.maps.LatLngLiteral>({} as google.maps.LatLngLiteral);
+  const [selectedMarker, setSelectedMarker] = React.useState<MarkerType>({} as MarkerType);
 
   const {
     data: nearbyPositions,
@@ -41,7 +47,15 @@ const App: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  console.log(nearbyPositions);
+  const {
+    data: markerWeather,
+    isLoading: isLoadingMarkerWeather,
+    isError: isErrorMarkerWeather,
+  } = useQuery([selectedMarker.id], () => fetchWeather(selectedMarker), {
+    enabled: !!selectedMarker.id,
+    refetchOnWindowFocus: false,
+    staleTime: 60 * 1000 * 5, // 5 minutes
+  });
 
   const onLoad = (map: google.maps.Map): void => {
     // const onLoad = (map: google.maps.Map<Element>): void => {
@@ -55,12 +69,11 @@ const App: React.FC = () => {
   const onMapClick = (e: google.maps.MapMouseEvent) => {
     if (e.latLng !== null) {
       setClickedPos({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+      setSelectedMarker({} as MarkerType);
     }
   };
 
-  const onMarkerClick = (marker: MarkerType) => {
-    console.log(marker);
-  };
+  const onMarkerClick = (marker: MarkerType) => setSelectedMarker(marker);
 
   if (!isLoaded) {
     return <div>Map Loading...</div>;
@@ -86,11 +99,29 @@ const App: React.FC = () => {
               onClick={() => onMarkerClick(marker)}
               icon={{
                 url: beerIcon,
+                origin: new window.google.maps.Point(0, 0),
+                anchor: new window.google.maps.Point(15, 15),
                 scaledSize: new window.google.maps.Size(20, 20),
               }}
             />
           );
         })}
+
+        {selectedMarker.location && (
+          <InfoWindow position={selectedMarker.location} onCloseClick={() => setSelectedMarker({} as MarkerType)}>
+            <div>
+              <h3>{selectedMarker.name}</h3>
+              {isLoadingMarkerWeather ? (
+                <p>Loading Weather...</p>
+              ) : (
+                <>
+                  <p>{markerWeather?.text}</p>
+                  <p>{markerWeather?.temp} &#xb0;C</p>
+                </>
+              )}
+            </div>
+          </InfoWindow>
+        )}
       </GoogleMap>
     </Wrapper>
   );
