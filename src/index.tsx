@@ -13,11 +13,9 @@ const GlobalStyles = createGlobalStyle`
 const queryClient = new QueryClient();
 
 ReactDOM.render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <GlobalStyles />
-      <App />
-    </QueryClientProvider>
-  </React.StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <GlobalStyles />
+    <App />
+  </QueryClientProvider>,
   document.getElementById("root")
 );

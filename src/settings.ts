@@ -6,7 +6,7 @@ export const containerStyle = {
   height: "100vh",
 };
 
-// Center on Kalmar
+// Default center (Palma de Mallorca)
 export const center = {
   lat: 39.57,
   lng: 2.65,
